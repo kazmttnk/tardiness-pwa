@@ -1,6 +1,6 @@
 // Apps Script のデプロイURL
 // TODO: デプロイ後に実際のURLに置き換えてください
-const API_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwCJAZiNNbfuVQ4Obr7uq1tidytgxAhaE1dlpXsDJOx1uzV6xVMI36wjn6xGHV_3GMpyA/exec';
 
 // API呼び出し関数
 async function callAPI(action, data = {}) {
