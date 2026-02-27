@@ -332,6 +332,7 @@ function scanBarcodeFromVideo() {
     .then(result => {
       const code = result.text;
       console.log('バーコード検出:', code);
+      alert('バーコード検出: ' + code); // デバッグ用
       
       const numbers = code.replace(/[^0-9]/g, '');
       if (numbers.length >= 6) {
@@ -343,14 +344,17 @@ function scanBarcodeFromVideo() {
         stopCamera();
         setTimeout(() => searchStudent(), 300);
       } else {
+        alert('数字が6桁未満: ' + numbers); // デバッグ用
         setTimeout(scanBarcodeFromVideo, 100);
       }
     })
     .catch(err => {
       if (err.name === 'NotFoundException') {
+        // バーコードが見つからない場合は再試行（通常動作）
         setTimeout(scanBarcodeFromVideo, 100);
       } else {
         console.error('スキャンエラー:', err);
+        alert('スキャンエラー: ' + err.name); // デバッグ用
         setTimeout(scanBarcodeFromVideo, 100);
       }
     });
