@@ -1,10 +1,10 @@
 const CACHE_NAME = 'tardiness-pwa-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-  '/manifest.json',
+  './',
+  './index.html',
+  './styles.css',
+  './app.js',
+  './manifest.json',
   'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js'
 ];
 
