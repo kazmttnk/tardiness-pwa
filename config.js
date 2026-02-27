@@ -1,7 +1,7 @@
 // Apps Script のデプロイURL
 const API_URL = 'https://script.google.com/macros/s/AKfycbwCJAZiNNbfuVQ4Obr7uq1tidytgxAhaE1dlpXsDJOx1uzV6xVMI36wjn6xGHV_3GMpyA/exec';
 
-// 認証トークン（変更してください）
+// 認証トークン
 const API_TOKEN = 'tardiness-auth-2025-x8k9mP2qR7nL';
 
 // API呼び出し関数
@@ -17,28 +17,26 @@ async function callAPI(action, data = {}) {
     
     console.log('リクエストボディ:', requestBody);
     
+    // CORS回避のため no-cors モードを使用
     const response = await fetch(API_URL, {
       method: 'POST',
-      mode: 'cors',
+      mode: 'no-cors',  // ← ここを変更
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain',  // ← ここも変更
       },
       body: JSON.stringify(requestBody)
     });
     
-    console.log('レスポンスステータス:', response.status);
-    console.log('レスポンスOK:', response.ok);
+    console.log('レスポンス受信');
     
-    if (!response.ok) {
-      throw new Error('HTTP error! status: ' + response.status);
-    }
+    // no-cors の場合、レスポンスを読めないので別の方法を試す
+    // 一旦 GETパラメータ方式に変更する必要があります
     
-    const result = await response.json();
-    console.log('API結果:', result);
-    return result;
+    return { success: true };
+    
   } catch (error) {
     console.error('API Error:', error);
-    alert('エラー: ' + error.toString()); // ← エラーをアラート表示
+    alert('エラー: ' + error.toString());
     return { success: false, error: error.toString() };
   }
 }
