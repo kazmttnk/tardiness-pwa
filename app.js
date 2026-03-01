@@ -16,10 +16,32 @@ let isScanning = false;
 // ============================================================
 window.onload = function() {
   setupBarcodeInput();
-  loadReasons();
-  loadTodayRecords();
-  loadSystemConfig();
+  loadInitData(); // 一括取得に変更
 };
+
+// ============================================================
+// 初期化データ一括取得（改善）
+// ============================================================
+async function loadInitData() {
+  const result = await callAPI('getInitData');
+  
+  if (result && result.success) {
+    // 遅刻理由リスト
+    reasonList = result.reasons;
+    renderReasons();
+    
+    // 本日の記録
+    renderTodayRecords(result.todayRecords);
+    
+    // 門限時刻
+    document.getElementById('gateTime').textContent = result.gateTime;
+  } else {
+    // エラー時は個別に取得（フォールバック）
+    loadReasons();
+    loadTodayRecords();
+    loadSystemConfig();
+  }
+}
 
 // ============================================================
 // バーコード入力
@@ -287,11 +309,12 @@ function startCamera() {
     return;
   }
   
+  // 解像度を640x480に下げて処理を軽量化
   const constraints = {
     video: {
       facingMode: { ideal: 'environment' },
-      width: { ideal: 1280 },
-      height: { ideal: 720 }
+      width: { ideal: 640 },
+      height: { ideal: 480 }
     }
   };
   
@@ -304,7 +327,8 @@ function startCamera() {
       status.textContent = 'バーコードをカメラに向けてください...';
       isScanning = true;
       
-      codeReader = new ZXing.BrowserMultiFormatReader();
+      // CODE39のみに特化してスキャン速度向上
+      codeReader = new ZXing.BrowserCodeReader();
       scanBarcodeFromVideo();
     })
     .catch(err => {
@@ -332,7 +356,6 @@ function scanBarcodeFromVideo() {
     .then(result => {
       const code = result.text;
       console.log('バーコード検出:', code);
-      alert('バーコード検出: ' + code); // デバッグ用
       
       const numbers = code.replace(/[^0-9]/g, '');
       if (numbers.length >= 6) {
@@ -344,18 +367,17 @@ function scanBarcodeFromVideo() {
         stopCamera();
         setTimeout(() => searchStudent(), 300);
       } else {
-        alert('数字が6桁未満: ' + numbers); // デバッグ用
-        setTimeout(scanBarcodeFromVideo, 100);
+        // 6桁未満の場合は再スキャン（スキャン間隔を150msに調整）
+        setTimeout(scanBarcodeFromVideo, 150);
       }
     })
     .catch(err => {
       if (err.name === 'NotFoundException') {
-        // バーコードが見つからない場合は再試行（通常動作）
-        setTimeout(scanBarcodeFromVideo, 100);
+        // バーコードが見つからない場合は再試行
+        setTimeout(scanBarcodeFromVideo, 150);
       } else {
         console.error('スキャンエラー:', err);
-        alert('スキャンエラー: ' + err.name); // デバッグ用
-        setTimeout(scanBarcodeFromVideo, 100);
+        setTimeout(scanBarcodeFromVideo, 150);
       }
     });
 }
